@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Login - Delivery Partner Portal</title>
+<style>
+  /* Reset and base */
+  * {
+    box-sizing: border-box;
+  }
+  body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: linear-gradient(135deg, #6c63ff, #b49efd);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    margin: 0;
+    padding: 0 20px;
+  }
+  .login-container {
+    background: white;
+    max-width: 400px;
+    width: 100%;
+    padding: 40px 30px;
+    border-radius: 12px;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+    animation: fadeInSlideUp 0.8s ease forwards;
+  }
+  h2 {
+    text-align: center;
+    margin-bottom: 30px;
+    font-weight: 700;
+    color: #333;
+  }
+  form p {
+    margin-bottom: 18px;
+    position: relative;
+  }
+  label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 600;
+    color: #555;
+  }
+  input[type="text"],
+  input[type="password"] {
+    width: 100%;
+    padding: 14px 16px;
+    border: 2px solid #ddd;
+    border-radius: 8px;
+    font-size: 16px;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+    outline: none;
+  }
+  input[type="text"]:focus,
+  input[type="password"]:focus {
+    border-color: #6c63ff;
+    box-shadow: 0 0 10px #6c63ff;
+  }
+  .error {
+    color: #e74c3c;
+    font-size: 13px;
+    position: absolute;
+    bottom: -18px;
+    left: 0;
+  }
+  button {
+    width: 100%;
+    padding: 16px 0;
+    font-size: 18px;
+    font-weight: 700;
+    color: white;
+    background: linear-gradient(45deg, #6c63ff, #b49efd);
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: background-position 0.4s ease;
+    background-size: 200% 200%;
+    background-position: left center;
+  }
+  button:hover {
+    background-position: right center;
+  }
+  .register-link {
+    margin-top: 20px;
+    text-align: center;
+    font-size: 15px;
+    color: #666;
+  }
+  .register-link a {
+    color: #6c63ff;
+    text-decoration: none;
+    font-weight: 600;
+    transition: color 0.3s ease;
+  }
+  .register-link a:hover {
+    color: #4e42c8;
+  }
+  @keyframes fadeInSlideUp {
+    0% {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    100% {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  @media (max-width: 480px) {
+    .login-container {
+      padding: 30px 20px;
+    }
+  }
+</style>
+</head>
+<body>
+  <div class="login-container">
+    <h2>Login to Your Account</h2>
+    <form method="POST" action="">
+      {{ form.hidden_tag() }}
+
+      <p>
+        {{ form.username.label }}
+        {{ form.username(size=32, placeholder="Enter your username") }}
+        {% if form.username.errors %}
+          <span class="error">{{ form.username.errors[0] }}</span>
+        {% endif %}
+      </p>
+
+      <p>
+        {{ form.password.label }}
+        {{ form.password(size=32, placeholder="Enter your password") }}
+        {% if form.password.errors %}
+          <span class="error">{{ form.password.errors[0] }}</span>
+        {% endif %}
+      </p>
+
+      <p>
+        {{ form.submit() }}
+      </p>
+    </form>
+    <p class="register-link">
+      No account yet? <a href="{{ url_for('register') }}">Register here</a>
+    </p>
+  </div>
+</body>
+</html>

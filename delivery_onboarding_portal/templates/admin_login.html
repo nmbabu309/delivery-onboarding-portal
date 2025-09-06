@@ -1,0 +1,166 @@
+{% extends "base.html" %}
+
+{% block content %}
+<style>
+    .admin-login-container {
+        max-width: 400px;
+        margin: 2rem auto;
+        animation: fadeInUp 0.8s ease;
+    }
+
+    .admin-header {
+        text-align: center;
+        margin-bottom: 2rem;
+    }
+
+    .admin-header h2 {
+        font-size: 2rem;
+        font-weight: 700;
+        color: white;
+        margin-bottom: 0.5rem;
+        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+    }
+
+    .admin-header p {
+        color: rgba(255, 255, 255, 0.9);
+        font-size: 1.1rem;
+    }
+
+    .admin-form {
+        background: white;
+        padding: 2.5rem;
+        border-radius: 16px;
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+        border-top: 4px solid #ef4444;
+    }
+
+    .admin-icon {
+        font-size: 4rem;
+        text-align: center;
+        margin-bottom: 1rem;
+        animation: pulse 2s infinite;
+    }
+
+    .admin-btn {
+        width: 100%;
+        padding: 16px;
+        background: linear-gradient(135deg, #ef4444, #dc2626);
+        color: white;
+        border: none;
+        border-radius: 10px;
+        font-size: 16px;
+        font-weight: 700;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        margin-bottom: 1.5rem;
+    }
+
+    .admin-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 25px rgba(239, 68, 68, 0.4);
+    }
+
+    @keyframes pulse {
+        0% { transform: scale(1); }
+        50% { transform: scale(1.05); }
+        100% { transform: scale(1); }
+    }
+
+    .security-notice {
+        background: #fef2f2;
+        border: 1px solid #fecaca;
+        border-radius: 8px;
+        padding: 1rem;
+        margin-bottom: 1.5rem;
+        color: #991b1b;
+        font-size: 14px;
+        text-align: center;
+    }
+
+    .form-group {
+        position: relative;
+        margin-bottom: 1.5rem;
+    }
+
+    .form-input {
+        width: 100%;
+        padding: 16px 20px;
+        border: 2px solid #e5e7eb;
+        border-radius: 10px;
+        font-size: 16px;
+        transition: all 0.3s ease;
+        background: #fafafa;
+    }
+
+    .form-input:focus {
+        background: white;
+        border-color: var(--primary);
+        box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+        outline: none;
+    }
+
+    .form-label {
+        position: absolute;
+        left: 20px;
+        top: 16px;
+        background: white;
+        padding: 0 8px;
+        color: #6b7280;
+        transition: all 0.3s ease;
+        font-weight: 500;
+    }
+
+    .form-input:focus + .form-label,
+    .form-input:not(:placeholder-shown) + .form-label {
+        top: -8px;
+        font-size: 12px;
+        color: var(--primary);
+        font-weight: 600;
+    }
+
+    .auth-links {
+        text-align: center;
+    }
+
+    .auth-links a {
+        color: var(--primary);
+        text-decoration: none;
+        font-weight: 600;
+    }
+</style>
+
+<div class="admin-login-container">
+    <div class="admin-header">
+        <div class="admin-icon">🔒</div>
+        <h2>Admin Access</h2>
+        <p>Secure administrative portal</p>
+    </div>
+
+    <div class="admin-form">
+        <div class="security-notice">
+            <strong>⚠️ Authorized Personnel Only</strong><br>
+            This area is restricted to authorized administrators.
+        </div>
+
+        <form method="POST" action="">
+            {{ form.hidden_tag() }}
+            
+            <div class="form-group">
+                {{ form.username(class="form-input", placeholder=" ") }}
+                {{ form.username.label(class="form-label") }}
+            </div>
+
+            <div class="form-group">
+                {{ form.password(class="form-input", placeholder=" ") }}
+                {{ form.password.label(class="form-label") }}
+            </div>
+
+            {{ form.submit(class="admin-btn", value="Admin Sign In") }}
+        </form>
+
+        <div class="auth-links">
+            <p><a href="{{ url_for('agent_login') }}">← Back to Partner Login</a></p>
+        </div>
+    </div>
+</div>
+{% endblock %}

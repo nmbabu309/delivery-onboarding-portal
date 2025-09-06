@@ -1,0 +1,455 @@
+{% extends "base.html" %}
+
+{% block content %}
+<style>
+    .upload-container {
+        max-width: 800px;
+        margin: 2rem auto;
+        animation: fadeInUp 0.8s ease;
+    }
+
+    .upload-header {
+        background: white;
+        padding: 2rem;
+        border-radius: 12px;
+        text-align: center;
+        margin-bottom: 2rem;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    }
+
+    .upload-header h2 {
+        color: var(--text-primary);
+        font-size: 2rem;
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+    }
+
+    .progress-bar {
+        width: 100%;
+        height: 4px;
+        background: #e5e7eb;
+        border-radius: 2px;
+        margin: 1rem 0;
+        overflow: hidden;
+    }
+
+    .progress-fill {
+        height: 100%;
+        background: linear-gradient(90deg, var(--primary), var(--accent));
+        width: 75%;
+        border-radius: 2px;
+        animation: progressAnimation 1s ease;
+    }
+
+    .documents-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 2rem;
+        margin-bottom: 2rem;
+    }
+
+    .document-card {
+        background: white;
+        padding: 2rem;
+        border-radius: 12px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        transition: all 0.3s ease;
+        animation: fadeInUp 0.8s ease;
+        border: 2px dashed #e5e7eb;
+    }
+
+    .document-card:hover {
+        border-color: var(--primary);
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+    }
+
+    .document-card.uploaded {
+        border-color: var(--accent);
+        border-style: solid;
+        background: linear-gradient(135deg, rgba(16, 185, 129, 0.05), rgba(16, 185, 129, 0.1));
+    }
+
+    .document-header {
+        text-align: center;
+        margin-bottom: 1.5rem;
+    }
+
+    .document-icon {
+        font-size: 3rem;
+        margin-bottom: 1rem;
+        display: block;
+    }
+
+    .document-title {
+        font-size: 1.25rem;
+        font-weight: 700;
+        color: var(--text-primary);
+        margin-bottom: 0.5rem;
+    }
+
+    .document-description {
+        color: var(--text-secondary);
+        font-size: 14px;
+        line-height: 1.4;
+    }
+
+    .upload-area {
+        border: 2px dashed #d1d5db;
+        border-radius: 8px;
+        padding: 2rem;
+        text-align: center;
+        transition: all 0.3s ease;
+        cursor: pointer;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .upload-area:hover {
+        border-color: var(--primary);
+        background: rgba(99, 102, 241, 0.05);
+    }
+
+    .upload-area.dragover {
+        border-color: var(--accent);
+        background: rgba(16, 185, 129, 0.1);
+    }
+
+    .upload-input {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        opacity: 0;
+        cursor: pointer;
+    }
+
+    .upload-content {
+        pointer-events: none;
+    }
+
+    .upload-icon {
+        font-size: 2rem;
+        color: var(--text-secondary);
+        margin-bottom: 0.5rem;
+    }
+
+    .upload-text {
+        color: var(--text-secondary);
+        font-size: 14px;
+        margin-bottom: 0.5rem;
+    }
+
+    .upload-hint {
+        color: var(--text-secondary);
+        font-size: 12px;
+    }
+
+    .file-preview {
+        display: none;
+        text-align: center;
+        padding: 1rem;
+        background: #f8fafc;
+        border-radius: 8px;
+        margin-top: 1rem;
+    }
+
+    .file-preview.show {
+        display: block;
+    }
+
+    .file-name {
+        font-weight: 600;
+        color: var(--text-primary);
+        margin-bottom: 0.5rem;
+    }
+
+    .file-size {
+        color: var(--text-secondary);
+        font-size: 12px;
+    }
+
+    .requirements {
+        background: #fffbeb;
+        border: 1px solid #fed7aa;
+        border-radius: 8px;
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+    }
+
+    .requirements h3 {
+        color: #92400e;
+        margin-bottom: 1rem;
+        font-size: 1.1rem;
+        font-weight: 700;
+    }
+
+    .requirements ul {
+        color: #92400e;
+        font-size: 14px;
+        line-height: 1.6;
+        margin: 0;
+        padding-left: 1.5rem;
+    }
+
+    .requirements li {
+        margin-bottom: 0.5rem;
+    }
+
+    .submit-section {
+        background: white;
+        padding: 2rem;
+        border-radius: 12px;
+        text-align: center;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    }
+
+    .submit-btn {
+        background: linear-gradient(135deg, var(--accent), #059669);
+        color: white;
+        border: none;
+        padding: 16px 32px;
+        border-radius: 10px;
+        font-size: 16px;
+        font-weight: 700;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        margin-right: 1rem;
+    }
+
+    .submit-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 25px rgba(16, 185, 129, 0.4);
+    }
+
+    .submit-btn:disabled {
+        background: #d1d5db;
+        cursor: not-allowed;
+        transform: none;
+        box-shadow: none;
+    }
+
+    @keyframes progressAnimation {
+        from { width: 50%; }
+        to { width: 75%; }
+    }
+
+    @media (max-width: 768px) {
+        .documents-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+
+<div class="upload-container">
+    <div class="upload-header">
+        <h2>📎 Document Upload</h2>
+        <p style="color: var(--text-secondary);">Upload required documents for verification</p>
+        <div class="progress-bar">
+            <div class="progress-fill"></div>
+        </div>
+        <div style="color: var(--text-secondary); font-size: 14px; font-weight: 500;">Step 3 of 4</div>
+    </div>
+
+    <div class="requirements">
+        <h3>📋 Document Requirements</h3>
+        <ul>
+            <li>All documents must be clear and readable</li>
+            <li>Accepted formats: JPG, PNG, PDF (max 5MB each)</li>
+            <li>Documents should be recent and valid</li>
+            <li>Ensure all text and details are visible</li>
+        </ul>
+    </div>
+
+    <div class="documents-grid">
+        <div class="document-card">
+            <div class="document-header">
+                <span class="document-icon">🆔</span>
+                <div class="document-title">Aadhar Card (Front)</div>
+                <div class="document-description">Upload clear image of Aadhar card front side</div>
+            </div>
+            
+            <div class="upload-area" onclick="document.getElementById('aadhar-front').click()">
+                <input type="file" id="aadhar-front" class="upload-input" accept="image/*,.pdf" onchange="handleFileUpload(this, 'aadhar-front-preview')">
+                <div class="upload-content">
+                    <div class="upload-icon">📷</div>
+                    <div class="upload-text">Click to upload or drag & drop</div>
+                    <div class="upload-hint">JPG, PNG, PDF up to 5MB</div>
+                </div>
+            </div>
+            
+            <div class="file-preview" id="aadhar-front-preview">
+                <div class="file-name"></div>
+                <div class="file-size"></div>
+            </div>
+        </div>
+
+        <div class="document-card">
+            <div class="document-header">
+                <span class="document-icon">🆔</span>
+                <div class="document-title">Aadhar Card (Back)</div>
+                <div class="document-description">Upload clear image of Aadhar card back side</div>
+            </div>
+            
+            <div class="upload-area" onclick="document.getElementById('aadhar-back').click()">
+                <input type="file" id="aadhar-back" class="upload-input" accept="image/*,.pdf" onchange="handleFileUpload(this, 'aadhar-back-preview')">
+                <div class="upload-content">
+                    <div class="upload-icon">📷</div>
+                    <div class="upload-text">Click to upload or drag & drop</div>
+                    <div class="upload-hint">JPG, PNG, PDF up to 5MB</div>
+                </div>
+            </div>
+            
+            <div class="file-preview" id="aadhar-back-preview">
+                <div class="file-name"></div>
+                <div class="file-size"></div>
+            </div>
+        </div>
+
+        <div class="document-card">
+            <div class="document-header">
+                <span class="document-icon">🚗</span>
+                <div class="document-title">Driving License</div>
+                <div class="document-description">Upload valid driving license (both sides if applicable)</div>
+            </div>
+            
+            <div class="upload-area" onclick="document.getElementById('license').click()">
+                <input type="file" id="license" class="upload-input" accept="image/*,.pdf" onchange="handleFileUpload(this, 'license-preview')">
+                <div class="upload-content">
+                    <div class="upload-icon">📷</div>
+                    <div class="upload-text">Click to upload or drag & drop</div>
+                    <div class="upload-hint">JPG, PNG, PDF up to 5MB</div>
+                </div>
+            </div>
+            
+            <div class="file-preview" id="license-preview">
+                <div class="file-name"></div>
+                <div class="file-size"></div>
+            </div>
+        </div>
+
+        <div class="document-card">
+            <div class="document-header">
+                <span class="document-icon">📸</span>
+                <div class="document-title">Passport Photo</div>
+                <div class="document-description">Upload recent passport-size photograph</div>
+            </div>
+            
+            <div class="upload-area" onclick="document.getElementById('photo').click()">
+                <input type="file" id="photo" class="upload-input" accept="image/*" onchange="handleFileUpload(this, 'photo-preview')">
+                <div class="upload-content">
+                    <div class="upload-icon">📷</div>
+                    <div class="upload-text">Click to upload or drag & drop</div>
+                    <div class="upload-hint">JPG, PNG up to 5MB</div>
+                </div>
+            </div>
+            
+            <div class="file-preview" id="photo-preview">
+                <div class="file-name"></div>
+                <div class="file-size"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="submit-section">
+        <h3 style="margin-bottom: 1rem; color: var(--text-primary);">Ready to Submit?</h3>
+        <p style="color: var(--text-secondary); margin-bottom: 2rem;">
+            Please review all uploaded documents before submitting for verification.
+        </p>
+        
+        <button class="submit-btn" id="submit-documents" onclick="submitDocuments()" disabled>
+            Submit Documents
+        </button>
+        
+        <a href="{{ url_for('agent_dashboard') }}" style="color: var(--text-secondary); text-decoration: none; font-weight: 500;">
+            Save & Continue Later
+        </a>
+    </div>
+</div>
+
+<script>
+let uploadedFiles = {};
+
+function handleFileUpload(input, previewId) {
+    const file = input.files[0];
+    const preview = document.getElementById(previewId);
+    const card = input.closest('.document-card');
+    
+    if (file) {
+        // Validate file size (5MB limit)
+        if (file.size > 5 * 1024 * 1024) {
+            alert('File size must be less than 5MB');
+            input.value = '';
+            return;
+        }
+        
+        // Show preview
+        preview.querySelector('.file-name').textContent = file.name;
+        preview.querySelector('.file-size').textContent = formatFileSize(file.size);
+        preview.classList.add('show');
+        
+        // Mark card as uploaded
+        card.classList.add('uploaded');
+        
+        // Store file reference
+        uploadedFiles[input.id] = file;
+        
+        // Check if all required files are uploaded
+        checkSubmitButton();
+    }
+}
+
+function formatFileSize(bytes) {
+    if (bytes === 0) return '0 Bytes';
+    const k = 1024;
+    const sizes = ['Bytes', 'KB', 'MB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+}
+
+function checkSubmitButton() {
+    const requiredFiles = ['aadhar-front', 'aadhar-back', 'license', 'photo'];
+    const submitBtn = document.getElementById('submit-documents');
+    
+    const allUploaded = requiredFiles.every(fileId => uploadedFiles[fileId]);
+    
+    if (allUploaded) {
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Submit Documents';
+    } else {
+        submitBtn.disabled = true;
+        submitBtn.textContent = `Upload ${requiredFiles.length - Object.keys(uploadedFiles).length} more documents`;
+    }
+}
+
+function submitDocuments() {
+    // In a real implementation, you would upload files to server here
+    alert('Documents submitted successfully! You will be redirected to your dashboard.');
+    window.location.href = "{{ url_for('agent_dashboard') }}";
+}
+
+// Drag and drop functionality
+document.querySelectorAll('.upload-area').forEach(area => {
+    area.addEventListener('dragover', function(e) {
+        e.preventDefault();
+        this.classList.add('dragover');
+    });
+    
+    area.addEventListener('dragleave', function(e) {
+        e.preventDefault();
+        this.classList.remove('dragover');
+    });
+    
+    area.addEventListener('drop', function(e) {
+        e.preventDefault();
+        this.classList.remove('dragover');
+        
+        const files = e.dataTransfer.files;
+        if (files.length > 0) {
+            const input = this.querySelector('.upload-input');
+            input.files = files;
+            input.dispatchEvent(new Event('change'));
+        }
+    });
+});
+</script>
+{% endblock %}

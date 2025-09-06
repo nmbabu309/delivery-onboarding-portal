@@ -1,0 +1,80 @@
+{% extends "base.html" %}
+
+{% block content %}
+<style>
+    .hero {
+        text-align: center;
+        padding: 4rem 2rem;
+        background: white;
+        border-radius: 16px;
+        margin-bottom: 3rem;
+        position: relative;
+        overflow: hidden;
+        animation: fadeInUp 0.8s ease;
+    }
+
+    .hero h1 {
+        font-size: 3.5rem;
+        font-weight: 800;
+        margin-bottom: 1rem;
+        background: linear-gradient(135deg, #6366f1, #a855f7);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+
+    .hero p {
+        font-size: 1.25rem;
+        color: var(--text-secondary);
+        margin-bottom: 3rem;
+        max-width: 600px;
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    .cta-buttons {
+        display: flex;
+        gap: 1.5rem;
+        justify-content: center;
+        flex-wrap: wrap;
+    }
+
+    .cta-button {
+        padding: 16px 32px;
+        font-size: 1.1rem;
+        font-weight: 700;
+        border-radius: 12px;
+        text-decoration: none;
+        transition: all 0.3s ease;
+    }
+
+    .cta-primary {
+        background: linear-gradient(135deg, #6366f1, #a855f7);
+        color: white;
+    }
+
+    .cta-secondary {
+        background: white;
+        color: var(--primary);
+        border: 2px solid var(--primary);
+    }
+
+    .cta-button:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15);
+    }
+
+    @media (max-width: 768px) {
+        .hero h1 { font-size: 2.5rem; }
+        .cta-buttons { flex-direction: column; align-items: center; }
+    }
+</style>
+
+<div class="hero">
+    <h1>Delivery Partner Onboarding</h1>
+    <p>Join our delivery network and start earning today. Complete your registration in just a few simple steps.</p>
+    <div class="cta-buttons">
+        <a href="{{ url_for('register') }}" class="cta-button cta-primary">Apply as Partner</a>
+        <a href="{{ url_for('agent_login') }}" class="cta-button cta-secondary">Existing Partner? Sign In</a>
+    </div>
+</div>
+{% endblock %}

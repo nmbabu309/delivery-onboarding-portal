@@ -1,0 +1,298 @@
+{% extends "base.html" %}
+
+{% block content %}
+<style>
+    .dashboard-header {
+        background: white;
+        padding: 2rem;
+        border-radius: 12px;
+        margin-bottom: 2rem;
+        text-align: center;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        animation: fadeInUp 0.6s ease;
+    }
+
+    .welcome-message {
+        font-size: 2rem;
+        font-weight: 700;
+        color: var(--text-primary);
+        margin-bottom: 0.5rem;
+    }
+
+    .status-badge {
+        display: inline-block;
+        padding: 8px 16px;
+        border-radius: 20px;
+        font-weight: 600;
+        font-size: 14px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        animation: pulse 2s infinite;
+    }
+
+    .status-pending {
+        background: #fef3c7;
+        color: #92400e;
+        border: 2px solid #f59e0b;
+    }
+
+    .status-verified {
+        background: #dbeafe;
+        color: #1e40af;
+        border: 2px solid #3b82f6;
+    }
+
+    .status-approved {
+        background: #d1fae5;
+        color: #065f46;
+        border: 2px solid #10b981;
+    }
+
+    .status-rejected {
+        background: #fee2e2;
+        color: #991b1b;
+        border: 2px solid #ef4444;
+    }
+
+    .dashboard-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 2rem;
+        margin-bottom: 2rem;
+    }
+
+    .dashboard-card {
+        background: white;
+        padding: 2rem;
+        border-radius: 12px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        transition: all 0.3s ease;
+        animation: fadeInUp 0.8s ease;
+    }
+
+    .dashboard-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+    }
+
+    .card-header {
+        display: flex;
+        align-items: center;
+        margin-bottom: 1.5rem;
+    }
+
+    .card-icon {
+        font-size: 2rem;
+        margin-right: 1rem;
+        padding: 12px;
+        border-radius: 10px;
+        background: linear-gradient(135deg, var(--primary), var(--accent));
+    }
+
+    .card-title {
+        font-size: 1.25rem;
+        font-weight: 700;
+        color: var(--text-primary);
+    }
+
+    .progress-bar {
+        width: 100%;
+        height: 8px;
+        background: #e5e7eb;
+        border-radius: 4px;
+        overflow: hidden;
+        margin: 1rem 0;
+    }
+
+    .progress-fill {
+        height: 100%;
+        background: linear-gradient(90deg, var(--primary), var(--accent));
+        border-radius: 4px;
+        transition: width 1s ease;
+    }
+
+    .action-buttons {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1rem;
+        margin-top: 2rem;
+    }
+
+    .action-btn {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        padding: 1rem 1.5rem;
+        border: none;
+        border-radius: 10px;
+        font-weight: 600;
+        text-decoration: none;
+        transition: all 0.3s ease;
+        cursor: pointer;
+    }
+
+    .btn-primary-action {
+        background: linear-gradient(135deg, var(--primary), #8b5cf6);
+        color: white;
+    }
+
+    .btn-success-action {
+        background: linear-gradient(135deg, var(--accent), #059669);
+        color: white;
+    }
+
+    .btn-warning-action {
+        background: linear-gradient(135deg, #f59e0b, #d97706);
+        color: white;
+    }
+
+    .action-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+    }
+
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+        gap: 1rem;
+        margin: 1.5rem 0;
+    }
+
+    .stat-item {
+        text-align: center;
+        padding: 1rem;
+        background: #f8fafc;
+        border-radius: 8px;
+        border-left: 4px solid var(--primary);
+    }
+
+    .stat-number {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: var(--primary);
+    }
+
+    .stat-label {
+        font-size: 12px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        color: var(--text-secondary);
+        margin-top: 0.5rem;
+    }
+
+    @media (max-width: 768px) {
+        .dashboard-grid {
+            grid-template-columns: 1fr;
+        }
+        
+        .action-buttons {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+
+<div class="dashboard-header">
+    <div class="welcome-message">
+        Welcome back, {{ current_user.username }}! 👋
+    </div>
+    <div class="status-info">
+        {% if agent %}
+            <span class="status-badge status-{{ agent.application_status.lower() if agent.application_status else 'pending' }}">
+                {{ agent.application_status or 'Pending' }}
+            </span>
+        {% else %}
+            <span class="status-badge status-pending">Profile Incomplete</span>
+        {% endif %}
+    </div>
+</div>
+
+<div class="dashboard-grid">
+    <div class="dashboard-card">
+        <div class="card-header">
+            <div class="card-icon">📋</div>
+            <div>
+                <div class="card-title">Application Progress</div>
+            </div>
+        </div>
+        
+        <div class="progress-bar">
+            {% if agent %}
+                {% if agent.application_status == 'Approved' %}
+                    <div class="progress-fill" style="width: 100%;"></div>
+                {% elif agent.application_status == 'Verified' %}
+                    <div class="progress-fill" style="width: 75%;"></div>
+                {% elif agent.first_name %}
+                    <div class="progress-fill" style="width: 50%;"></div>
+                {% else %}
+                    <div class="progress-fill" style="width: 25%;"></div>
+                {% endif %}
+            {% else %}
+                <div class="progress-fill" style="width: 25%;"></div>
+            {% endif %}
+        </div>
+
+        <div class="stats-grid">
+            <div class="stat-item">
+                <div class="stat-number">{{ '4' if agent and agent.application_status == 'Approved' else '3' if agent and agent.application_status == 'Verified' else '2' if agent and agent.first_name else '1' }}</div>
+                <div class="stat-label">Steps Complete</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number">4</div>
+                <div class="stat-label">Total Steps</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="dashboard-card">
+        <div class="card-header">
+            <div class="card-icon">🎯</div>
+            <div>
+                <div class="card-title">Next Steps</div>
+            </div>
+        </div>
+
+        {% if not agent %}
+            <p><strong>📝 Complete your profile</strong><br>
+            Fill in your personal information to continue.</p>
+        {% elif not agent.first_name %}
+            <p><strong>📝 Complete personal information</strong><br>
+            Add your details to proceed with verification.</p>
+        {% elif agent.application_status == 'Pending' %}
+            <p><strong>⏳ Awaiting verification</strong><br>
+            Our team is reviewing your application.</p>
+        {% elif agent.application_status == 'Verified' %}
+            <p><strong>📋 Upload documents</strong><br>
+            Submit required documents for final approval.</p>
+        {% elif agent.application_status == 'Approved' %}
+            <p><strong>🚀 You're ready!</strong><br>
+            Start delivering and earning money.</p>
+        {% else %}
+            <p><strong>❌ Application needs attention</strong><br>
+            Please review and resubmit your information.</p>
+        {% endif %}
+    </div>
+</div>
+
+<div class="action-buttons">
+    {% if not agent or not agent.first_name %}
+        <a href="{{ url_for('personal_info') }}" class="action-btn btn-primary-action">
+            <span>📝</span> Complete Profile
+        </a>
+    {% else %}
+        <a href="{{ url_for('personal_info') }}" class="action-btn btn-warning-action">
+            <span>✏️</span> Edit Profile
+        </a>
+    {% endif %}
+    
+    {% if agent and agent.first_name %}
+        <a href="{{ url_for('upload_documents') }}" class="action-btn btn-success-action">
+            <span>📎</span> Upload Documents
+        </a>
+    {% endif %}
+    
+    <a href="{{ url_for('logout') }}" class="action-btn" style="background: #6b7280; color: white;">
+        <span>🚪</span> Logout
+    </a>
+</div>
+{% endblock %}
